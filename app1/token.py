@@ -1,0 +1,11 @@
+from rest_framework_simplejwt.tokens import RefreshToken
+
+
+def get_token(user):
+    refresh = RefreshToken.for_user(user)
+    refresh['id'] = user.id
+
+    return{
+        'refresh' : str(refresh),
+        'access'  : str(refresh.access_token),
+    }
