@@ -16,19 +16,17 @@ from random import randint
 import traceback
 from django.core.cache import cache
 from django.http import JsonResponse
-from django.contrib.auth import authenticate,login,logout
+from django.contrib.auth import login
 from . token import get_token
 from django.contrib.auth.hashers import check_password
-from rest_framework.authtoken.models import Token
-from rest_framework.parsers import FileUploadParser
 import cloudinary
 import cloudinary.uploader
 import cloudinary.api
-import base64
-from django.core.files.base import ContentFile
-from rest_framework.authentication import TokenAuthentication
-from rest_framework.permissions import IsAuthenticated
 import urllib.parse
+
+
+
+
 
 
 
@@ -269,13 +267,12 @@ class MemberLogin(APIView):
             image_instance = member_instance.image.order_by('-id').first()
             image_url = image_instance.image.url if image_instance else None
 
-            decoded_image_url = urllib.parse.unquote(image_url).lstrip('/') if image_url else None
-
-           
-
-            # Adding an extra slash after http:
-            decoded_image_url = decoded_image_url.replace("http:/", "http://")
-            
+            # decoded_image_url = urllib.parse.unquote(image_url).lstrip('/') if image_url else None
+            # decoded_image_url = decoded_image_url.replace("http:/", "http://")
+            decoded_image_url = None
+            if image_url:
+                decoded_image_url = urllib.parse.unquote(image_url).lstrip('/')
+                decoded_image_url = decoded_image_url.replace("http:/", "http://")
 
             member_data = {
                 'member_id': member_instance.id,
@@ -330,10 +327,6 @@ class ImageUpload(APIView):
         member_id = request.data.get('member')
         image_data = request.data.get('image') 
         
-
-      
-        
-        
         if not member_id or not image_data:
             return Response({'error': 'member and image are required'}, status=status.HTTP_400_BAD_REQUEST)
 
@@ -351,7 +344,6 @@ class ImageUpload(APIView):
       
         serializer = ImageSerializer(data=image_data)
       
-
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
@@ -360,24 +352,39 @@ class ImageUpload(APIView):
             
 
 class AllMembersView(APIView):
+
     def get(self, request):
+        
+        
         try:  
-            basic_details = Basic_Details.objects.filter(is_active = True).order_by('-id')
-            member_details = []
+            member_id         = self.request.query_params.get('member_id')
+            logged_in_member  = Member.objects.get(id=member_id)
+            gender            = logged_in_member.gender
+            logged_in_basic   = Basic_Details.objects.get(member_id = member_id)
+            religion          = logged_in_basic.religion
+            
+
+            basic_details     = Basic_Details.objects.filter(is_active = True).order_by('-id')
+            member_details    = []
 
             for basic_detail in basic_details:
-                images = Image.objects.filter(member=basic_detail.member)
-                image_urls = [urllib.parse.unquote(image.image.url.lstrip('/')) for image in images]
 
-                modified_image_urls = [url.replace("http:/", "http://") for url in image_urls]
+                if basic_detail.member != logged_in_member:
+                    if basic_detail.religion == religion:
+                        if (gender == 'male' and basic_detail.member.gender == 'female') or (gender == 'female' and basic_detail.member.gender == 'male'):
+                    
+                            images = Image.objects.filter(member=basic_detail.member)
+                            image_urls = [urllib.parse.unquote(image.image.url.lstrip('/')) for image in images]
 
-                 
-                member_details.append({
-                    'id': basic_detail.member_id,
-                    'email': basic_detail.email_id,
-                    'date_of_birth': basic_detail.date_of_birth,
-                    'image_urls': modified_image_urls,
-                })
+                            modified_image_urls = [url.replace("http:/", "http://") for url in image_urls]
+            
+                        
+                            member_details.append({
+                                'id': basic_detail.member_id,
+                                'email': basic_detail.email_id,
+                                'date_of_birth': basic_detail.date_of_birth,
+                                'image_urls': modified_image_urls,
+                            })
 
           
 
@@ -390,7 +397,6 @@ class PreferenceCreateView(APIView):
 
     def post(self,request,format=None):
         data = request.data
-        print(data,'data from backend..........')
         serializer = PreferenceSerializer(data = data)
 
         if serializer.is_valid():
@@ -426,9 +432,13 @@ class MembershipPackageView(APIView):
 class IndividalMemberDetails(APIView):
 
     def get(self, request, member_id):
-        member         = get_object_or_404(Member, id=member_id)
-        basic_details  = get_object_or_404(Basic_Details, member_id = member_id)
-        image          = get_object_or_404(Image,member_id = member_id)
+        member                  = get_object_or_404(Member, id=member_id)
+        basic_details           = get_object_or_404(Basic_Details, member_id = member_id)
+        preferences             = get_object_or_404(Preferences , member_id = member_id)
+        professional_Details    = get_object_or_404(Professional_Details , member_id = member_id)
+        personal_Details        = get_object_or_404(Personal_Details , member_id = member_id)
+        about                   = get_object_or_404(About , member_id = member_id)
+        image                   = get_object_or_404(Image,member_id = member_id)
 
 
         image_url = image.image.url if image else None
@@ -437,15 +447,68 @@ class IndividalMemberDetails(APIView):
         decoded_image_url = decoded_image_url.replace("http:/", "http://")
             
         member_details = {
-            'id': member.matrimony_id,
-            'name': member.name,
-           'date_of_birth' :basic_details.date_of_birth,
-           'email_id'      :basic_details.email_id,
-           'image_url'    :decoded_image_url
+            'member_id'     : member_id,
+            'id'            : member.matrimony_id,
+            'name'          : member.name,
+           'date_of_birth'  : basic_details.date_of_birth,
+           'email_id'       : basic_details.email_id,
+           'image_url'      : decoded_image_url,
+           'age_range_min'  : preferences.age_range_min,
+           'age_range_max'  : preferences.age_range_max,
+           'location'       : preferences.location,
+           'occupation'     : preferences.occupation,
+           'education'      : preferences.education,
+           'job'            : professional_Details.occupation,
+           'marital_status' : personal_Details.marital_status,
+           'about'          : about.about_you,
+
+
             
-            # Add more fields as needed
+           
         }
 
-        print(member_details,".................")
+        
         
         return JsonResponse(member_details)
+    
+
+class ShowInterestView(APIView):
+    def post(self, request, **kwargs):
+        data = request.data
+        memberid = data.get('memberid')
+        name     = data.get('name')
+        print(name,"...........")
+        
+        if memberid is not None:
+            member = get_object_or_404(Basic_Details, member_id=memberid)
+            recepient_email = member.email_id
+            self.send_interest(recepient_email, name)
+            return Response({'message': 'Interest shown successfully'}, status=status.HTTP_200_OK)
+        else:
+            return Response({'message': 'Invalid data provided'}, status=status.HTTP_400_BAD_REQUEST)
+
+
+    def send_interest(self, recepient_email, interested_person_name):
+        sender_email = "plantorium1@gmail.com"
+        password = "lhfkxofxdfyhflkq"
+        
+        subject = "Someone shown interest"
+        message = f"🌟 Exciting News! {interested_person_name} has shown interest in your profile. 🌟"
+        
+        msg = MIMEMultipart()
+        msg['From'] = sender_email
+        msg['To'] = recepient_email
+        msg['Subject'] = subject
+        
+        msg.attach(MIMEText(message, 'plain'))
+        
+        try:
+            server = smtplib.SMTP("smtp.gmail.com", 587)
+            server.starttls()
+            server.login(sender_email, password)
+            server.sendmail(sender_email, recepient_email, msg.as_string())
+            server.quit()
+            print("intrest sent successfullyyy")
+        except Exception as e:
+            print("Error sending intrest:", str(e))
+            traceback.print_exc()

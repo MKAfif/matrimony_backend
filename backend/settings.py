@@ -39,10 +39,23 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'corsheaders',
     'app1',
+    'premium',
     'rest_framework_simplejwt',
+    'channels',
     
 ]
 
+
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "channels_redis.core.RedisChannelLayer",
+        "CONFIG": {
+            "hosts": [("localhost", 6379)],
+        },
+    },
+}
+
+ASGI_APPLICATION = "backend.premium.asgi.application"
 
 
 

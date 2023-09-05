@@ -3,6 +3,7 @@ from django.urls import path
 from app1 import views
 from django.conf.urls.static import static
 from django.conf import settings
+from django.urls import include
 
 
 
@@ -20,11 +21,14 @@ urlpatterns = [
     path('api/adminmember', views.AdminMember.as_view(), name='admin-member'),
     path('api/memberlogin',views.MemberLogin.as_view(),name='memberlogin'),
     path('api/imageupload',views.ImageUpload.as_view(),name='imageupload'),
-    path('api/allmemberdetails', views.AllMembersView.as_view(), name='allmemberdetails'),
+    path('api/allmemberdetails/', views.AllMembersView.as_view(), name='allmemberdetails'),
     path('api/references',views.PreferenceCreateView.as_view(),name='references'),
     path('api/adminpremium',views.MembershipPackageView.as_view(),name='premium'),
-    path('api/individual/<int:member_id>/',views.IndividalMemberDetails.as_view(),name='individual')
+    path('api/individual/<int:member_id>/',views.IndividalMemberDetails.as_view(),name='individual'),
+    path('api/showinterest', views.ShowInterestView.as_view(), name='showinterest'),
 
+
+    path('', include('premium.urls')),
 
 
 

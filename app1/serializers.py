@@ -15,7 +15,6 @@ class BasicDetailsSerializer(serializers.ModelSerializer):
         extra_kwargs = {'password': {'write_only': True}}
 
     def create(self, validated_data):
-        print(validated_data,"daaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")
         password = validated_data.pop('password', None)
         print(password,"password before make_password")
         instance = self.Meta.model(**validated_data)
@@ -79,4 +78,11 @@ class MembershipPackageSerializer(serializers.ModelSerializer):
 
     class Meta:
         model  = MembershipPackage
-        fields = ['plan_name','description','plan_price','time_period']
+        fields = ['plan_name','description','plan_price','time_period','id']
+
+
+
+class MessageSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Message
+        fields = ['id', 'sender', 'content', 'timestamp']
