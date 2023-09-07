@@ -31,6 +31,8 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
+    'daphne',
+    'channels',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -41,21 +43,27 @@ INSTALLED_APPS = [
     'app1',
     'premium',
     'rest_framework_simplejwt',
-    'channels',
+    
     
 ]
 
 
+# CHANNEL_LAYERS = {
+#     "default": {
+#         "BACKEND": "channels_redis.core.RedisChannelLayer",
+#         "CONFIG": {
+#             "hosts": [("localhost", 6379)],
+#         },
+#     },
+# }
+
 CHANNEL_LAYERS = {
     "default": {
-        "BACKEND": "channels_redis.core.RedisChannelLayer",
-        "CONFIG": {
-            "hosts": [("localhost", 6379)],
-        },
-    },
+        "BACKEND": "channels.layers.InMemoryChannelLayer"
+    }
 }
 
-ASGI_APPLICATION = "backend.premium.asgi.application"
+ASGI_APPLICATION = "backend.asgi.application"
 
 
 
@@ -69,6 +77,7 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'corsheaders.middleware.CorsMiddleware',  # CorsMiddleware is before CsrfViewMiddleware
     'django.middleware.common.CommonMiddleware',
+    
 ]
 
 CORS_ALLOWED_ORIGINS = [

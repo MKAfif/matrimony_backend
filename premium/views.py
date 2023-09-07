@@ -10,6 +10,7 @@ from pusher import pusher_client
 from channels.generic.websocket import AsyncWebsocketConsumer
 import json
 from django.db.models import Q
+import urllib.parse
 
 
 
@@ -108,4 +109,44 @@ class PremiumMember(APIView):
             return JsonResponse({'error': str(e)}, status=500)
     
 
+class ChattingProfiles(APIView):
 
+    def get(self, request):
+
+        try:
+            member_id = self.request.query_params.get('member_id')
+            print(member_id, "..................")
+            logged_in_member = Member.objects.get(id=member_id)
+            gender = logged_in_member.gender
+            name = logged_in_member.name
+            logged_in_basic = Basic_Details.objects.get(member_id=member_id)
+            religion = logged_in_basic.religion
+
+            basic_details = Basic_Details.objects.filter(is_active=True).exclude(member=logged_in_member).order_by('-id')
+            member_details = []
+
+            for basic_detail in basic_details:
+                if basic_detail.religion == religion:
+                    if (gender == 'male' and basic_detail.member.gender == 'female') or (
+                            gender == 'female' and basic_detail.member.gender == 'male'):
+
+                        # Fetch images for the current filtered user
+                        images = Image.objects.filter(member=basic_detail.member)
+                        image_urls = [urllib.parse.unquote(image.image.url.lstrip('/')) for image in images]
+
+                        modified_image_urls = [url.replace("http:/", "http://") for url in image_urls]
+
+                        print(modified_image_urls, "image url")
+                        member_details.append({
+                            'id': basic_detail.member_id,
+                            'email': basic_detail.email_id,
+                            'name': basic_detail.member.name,
+                            'image_urls': modified_image_urls,
+                        })
+
+            return JsonResponse({'members': member_details}, status=200)
+        except Exception as e:
+            return JsonResponse({'error': str(e)}, status=500)
+
+
+            

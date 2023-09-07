@@ -24,9 +24,7 @@ class BasicDetailsSerializer(serializers.ModelSerializer):
         return instance
 
 
-        
-
-
+    
 
 class PersonalDetailsSerializer(serializers.ModelSerializer):
     class Meta:
@@ -86,3 +84,9 @@ class MessageSerializer(serializers.ModelSerializer):
     class Meta:
         model = Message
         fields = ['id', 'sender', 'content', 'timestamp']
+
+
+class PremiumSerializer(serializers.ModelSerializer):
+    class Meta:
+        model   = Premium
+        fields  = ['member','amount','starting_date','ending_date','amount']

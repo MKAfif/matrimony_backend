@@ -158,7 +158,8 @@ class MembershipPackage(models.Model):
 
 
 class Message(models.Model):
-    sender    = models.ForeignKey(Member, on_delete=models.CASCADE)
+    sender    = models.ForeignKey(Member, on_delete=models.CASCADE,related_name='sent_messages')
+    receiver = models.ForeignKey(Member, on_delete=models.CASCADE, related_name='received_messages')
     content   = models.TextField()
     timestamp = models.DateTimeField(auto_now_add=True)
 
@@ -167,3 +168,13 @@ class Message(models.Model):
 
     class Meta:
         ordering = ('timestamp',)
+
+
+class Premium(models.Model):
+    member               =   models.ForeignKey(Member,on_delete=models.CASCADE)
+    is_platinum          =   models.BooleanField(default=False)
+    is_gold              =   models.BooleanField(default=False)
+    is_diamond           =   models.BooleanField(default=False)
+    amount               =   models.DecimalField(max_digits=10 , decimal_places= 2 )
+    starting_date        =   models.DateField()  
+    ending_date          =   models.DateField()
