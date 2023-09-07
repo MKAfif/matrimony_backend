@@ -83,10 +83,13 @@ class MembershipPackageSerializer(serializers.ModelSerializer):
 class MessageSerializer(serializers.ModelSerializer):
     class Meta:
         model = Message
-        fields = ['id', 'sender', 'content', 'timestamp']
+        fields = ['id', 'sender', 'receiver' 'content', 'timestamp']
 
 
 class PremiumSerializer(serializers.ModelSerializer):
     class Meta:
         model   = Premium
         fields  = ['member','amount','starting_date','ending_date','amount']
+
+
+

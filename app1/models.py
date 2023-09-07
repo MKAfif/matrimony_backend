@@ -158,13 +158,13 @@ class MembershipPackage(models.Model):
 
 
 class Message(models.Model):
-    sender    = models.ForeignKey(Member, on_delete=models.CASCADE,related_name='sent_messages')
-    receiver = models.ForeignKey(Member, on_delete=models.CASCADE, related_name='received_messages')
+    sender    = models.ForeignKey(Member, on_delete=models.CASCADE,related_name='sent_messages',null=True)
+    receiver  = models.ForeignKey(Member, on_delete=models.CASCADE, related_name='received_messages', null=True)
     content   = models.TextField()
     timestamp = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f'{self.sender.username} ({self.timestamp}): {self.content}'
+        return f'{self.sender} ({self.timestamp}): {self.content}'
 
     class Meta:
         ordering = ('timestamp',)

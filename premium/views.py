@@ -35,7 +35,7 @@ class Billing(APIView):
 
         premium  = get_object_or_404(MembershipPackage,id = premium_id)
 
-        print(premium,"............")
+      
 
 
         billing_details = {
@@ -59,7 +59,7 @@ class UpdatePremiumProfile(APIView):
 
         data = request.data
 
-        print(data,"..........")       
+            
         member_id = data.get('member_id')
         plan_name = data.get('plan_name')
 
@@ -115,7 +115,6 @@ class ChattingProfiles(APIView):
 
         try:
             member_id = self.request.query_params.get('member_id')
-            print(member_id, "..................")
             logged_in_member = Member.objects.get(id=member_id)
             gender = logged_in_member.gender
             name = logged_in_member.name
@@ -136,7 +135,6 @@ class ChattingProfiles(APIView):
 
                         modified_image_urls = [url.replace("http:/", "http://") for url in image_urls]
 
-                        print(modified_image_urls, "image url")
                         member_details.append({
                             'id': basic_detail.member_id,
                             'email': basic_detail.email_id,
@@ -150,3 +148,41 @@ class ChattingProfiles(APIView):
 
 
             
+class GetMessage(APIView):
+
+    def get(self , request , recepient_id):
+        
+
+        try:
+            recepient = Message.objects.filter(receiver_id=recepient_id)
+
+            print(recepient,"....")
+
+            if not recepient.exists():
+                return JsonResponse({"error": "No messages found for the recipient"}, status=404)
+            recipient_data = []
+
+       
+
+            for message in recepient:
+                    message_data = {
+                        "sender_id": message.sender_id,
+                        "receiver_id": message.receiver_id,
+                        "content": message.content,
+                        "timestamp": message.timestamp.strftime('%Y-%m-%d %H:%M:%S'),
+                    }
+                    recipient_data.append(message_data)
+
+                  
+
+
+       
+            
+            return JsonResponse({"recipient_data": recipient_data}, status=200)
+
+        except Message.DoesNotExist:
+            return JsonResponse({"error": "Recipient not found"}, status=404)
+
+
+
+       

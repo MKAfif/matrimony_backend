@@ -11,13 +11,7 @@ urlpatterns = [
     path('api/updatepremiumprofile',views.UpdatePremiumProfile.as_view(),name = 'updatpremium'),
     path('api/premiummembers',views.PremiumMember.as_view(),name='premiummember'),
     path('api/chattingprofiles/', views.ChattingProfiles.as_view(), name='allmemberdetails'),
-    
+    path('api/getmessage/<int:recepient_id>/',views.GetMessage.as_view(),name = 'getmessage'),
 
 ]
 
-# websocket_urlpatterns = [
-#     re_path(r'ws/chat/matrimony_chat/$', views.ChatConsumer.as_asgi()),
-#     # Define more WebSocket URL patterns if needed
-# ]
-
-# urlpatterns += websocket_urlpatterns

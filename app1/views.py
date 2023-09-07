@@ -477,7 +477,7 @@ class ShowInterestView(APIView):
         data = request.data
         memberid = data.get('memberid')
         name     = data.get('name')
-        print(name,"...........")
+       
         
         if memberid is not None:
             member = get_object_or_404(Basic_Details, member_id=memberid)
