@@ -89,7 +89,7 @@ class MessageSerializer(serializers.ModelSerializer):
 class PremiumSerializer(serializers.ModelSerializer):
     class Meta:
         model   = Premium
-        fields  = ['member','amount','starting_date','ending_date','amount']
+        fields  = ['member','starting_date','ending_date','amount','is_platinum','is_gold','is_diamond']
 
 
 
