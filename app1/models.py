@@ -60,7 +60,7 @@ class Basic_Details(AbstractBaseUser,PermissionsMixin):
 class Personal_Details(models.Model):
     marital_status_choices = (
          ('Never Married', 'Never Married'),
-        ('Married', 'Married'),
+        ('Divorced', 'Divorced'),
     )
 
     family_status_choices = (

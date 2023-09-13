@@ -1,6 +1,3 @@
-from django.shortcuts import render
-
-# Create your views here.
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -26,18 +23,13 @@ import urllib.parse
 
 
 
-
-
-
-
-
 class MemberCreateView(APIView):
     def post(self, request, format=None):
         data = request.data
         mobile_number = data.get('mobile_number')
 
         if Member.objects.filter(mobile_number=mobile_number).exists():
-            raise ValidationError({'mobile_number': 'This mobile number already exists in the database.'})
+            raise ValidationError({'mobile_number': 'This mobile number already exists.'})
 
         serializer = MemberSerializer(data=data)
         if serializer.is_valid():
@@ -60,7 +52,12 @@ class MemberCreateView(APIView):
 class BasicDetailsCreateView(APIView):
 
     def post(self, request, format=None):
-        
+        data     = request.data
+        email_id = data.get('email_id')
+
+        if Basic_Details.objects.filter(email_id = email_id).exists():
+            raise ValidationError({'email_id':'This email already exists'})
+
         serializer = BasicDetailsSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
@@ -195,14 +192,19 @@ class AdminLoginView(APIView):
 class ProfileVerificationView(APIView):
     def get(self, request):
         try:  
-            basic_details = Basic_Details.objects.filter(is_verified=True , is_active = False,is_superuser = False).order_by('-id')
+            basic_details  = Basic_Details.objects.filter(is_verified=True , is_active = False,is_superuser = False).order_by('-id')
+            
             member_details = []
             for basic_detail in basic_details:
+                member = Member.objects.get(id =basic_detail.member_id)
                 member_details.append({
+                    'name': member.name,
                     'id': basic_detail.id,
                     'email': basic_detail.email_id,
                     'date_of_birth': basic_detail.date_of_birth,            
                 })
+
+                print(member_details)
 
               
             return JsonResponse(member_details, status=200, safe=False)
@@ -232,7 +234,9 @@ class AdminMember(APIView):
             basic_details = Basic_Details.objects.filter(is_verified=True , is_active = True,is_superuser = False).order_by('-id')
             member_details = []
             for basic_detail in basic_details:
+                member = Member.objects.get(id =basic_detail.member_id)
                 member_details.append({
+                    'name':member.name,
                     'id': basic_detail.id,
                     'email': basic_detail.email_id,
                     'date_of_birth': basic_detail.date_of_birth,            

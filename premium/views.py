@@ -108,25 +108,28 @@ class PremiumMember(APIView):
     def get(self, request):
         try:
 
-            premium_users = Basic_Details.objects.filter(
+            premium_users = Premium.objects.filter(
                 Q(is_diamond=True) | Q(is_gold=True) | Q(is_platinum=True),
-                is_verified=True,
-                is_active=True,
-                is_superuser=False
+                # is_verified=True,
+                # is_active=True,
+                # is_superuser=False
             ).order_by('-id')
 
             member_details = []
-
-            for user in premium_users:
+          
+            for premium_user in premium_users:
+                member        = Member.objects.get(id = premium_user.member_id)
+                basic_details = Basic_Details.objects.get(member_id = premium_user.member_id)
                 member_details.append({
-                    'id': user.id,
-                    'email': user.email_id,
-                    'date_of_birth': user.date_of_birth,
-                    'is_diamond': user.is_diamond,
-                    'is_gold': user.is_gold,
-                    'is_platinum': user.is_platinum
+                    'name' : member.name,
+                    'id'   : premium_user.member_id,
+                    'email': basic_details.email_id,
+                    # 'date_of_birth': user.date_of_birth,
+                    # 'is_diamond': user.is_diamond,
+                    # 'is_gold': user.is_gold,
+                    # 'is_platinum': user.is_platinum
                 })
-
+            
             return JsonResponse(member_details, status=200, safe=False)
         except Exception as e:
             return JsonResponse({'error': str(e)}, status=500)
