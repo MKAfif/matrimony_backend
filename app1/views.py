@@ -62,6 +62,8 @@ class BasicDetailsCreateView(APIView):
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
+        
+        print(serializer.errors,"...")
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
@@ -267,12 +269,12 @@ class MemberLogin(APIView):
             personal_details = member_instance.personal_details_profile.first()
             professional_details = member_instance.professional_details_profile.first()
             about = member_instance.about_profile
+            premium_instance = Premium.objects.filter(member_id=member_instance).first()
 
             image_instance = member_instance.image.order_by('-id').first()
             image_url = image_instance.image.url if image_instance else None
 
-            # decoded_image_url = urllib.parse.unquote(image_url).lstrip('/') if image_url else None
-            # decoded_image_url = decoded_image_url.replace("http:/", "http://")
+           
             decoded_image_url = None
             if image_url:
                 decoded_image_url = urllib.parse.unquote(image_url).lstrip('/')
@@ -310,7 +312,19 @@ class MemberLogin(APIView):
 
                 # About
                 'about_you': about.about_you if about else None,
+
+
+                 # Include Premium data in the member_data dictionary
+                'is_platinum': premium_instance.is_platinum if premium_instance else False,
+                'is_gold': premium_instance.is_gold if premium_instance else False,
+                'is_diamond': premium_instance.is_diamond if premium_instance else False,
+                'premium_amount': premium_instance.amount if premium_instance else None,
+                'premium_starting_date': premium_instance.starting_date if premium_instance else None,
+                'premium_ending_date': premium_instance.ending_date if premium_instance else None,
+
             }
+
+           
           
         
 
@@ -359,7 +373,6 @@ class AllMembersView(APIView):
 
     def get(self, request):
         
-        
         try:  
             member_id         = self.request.query_params.get('member_id')
             logged_in_member  = Member.objects.get(id=member_id)
@@ -369,6 +382,7 @@ class AllMembersView(APIView):
             
 
             basic_details     = Basic_Details.objects.filter(is_active = True).order_by('-id')
+           
             member_details    = []
 
             for basic_detail in basic_details:
@@ -388,6 +402,7 @@ class AllMembersView(APIView):
                                 'email': basic_detail.email_id,
                                 'date_of_birth': basic_detail.date_of_birth,
                                 'image_urls': modified_image_urls,
+                                'name': basic_detail.member.name, 
                             })
 
           
@@ -409,6 +424,8 @@ class PreferenceCreateView(APIView):
             return Response(serializer.data,status=status.HTTP_201_CREATED)
         
         return Response(serializer.errors , status= status.HTTP_400_BAD_REQUEST)
+    
+
 
 
 class MembershipPackageView(APIView):
@@ -432,48 +449,74 @@ class MembershipPackageView(APIView):
         return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
 
 
-
 class IndividalMemberDetails(APIView):
 
     def get(self, request, member_id):
-        member                  = get_object_or_404(Member, id=member_id)
-        basic_details           = get_object_or_404(Basic_Details, member_id = member_id)
-        preferences             = get_object_or_404(Preferences , member_id = member_id)
-        professional_Details    = get_object_or_404(Professional_Details , member_id = member_id)
-        personal_Details        = get_object_or_404(Personal_Details , member_id = member_id)
-        about                   = get_object_or_404(About , member_id = member_id)
-        image                   = get_object_or_404(Image,member_id = member_id)
+        member = get_object_or_404(Member, id=member_id)
 
+       
+        basic_details = None
+        preferences = None
+        professional_details = None
+        personal_details = None
+        about = None
+        image = None
+
+       
+        try:
+            basic_details = Basic_Details.objects.get(member_id=member_id)
+        except Basic_Details.DoesNotExist:
+            pass
+
+        try:
+            preferences = Preferences.objects.get(member_id=member_id)
+        except Preferences.DoesNotExist:
+            pass
+
+        try:
+            professional_details = Professional_Details.objects.get(member_id=member_id)
+        except Professional_Details.DoesNotExist:
+            pass
+
+        try:
+            personal_details = Personal_Details.objects.get(member_id=member_id)
+        except Personal_Details.DoesNotExist:
+            pass
+
+        try:
+            about = About.objects.get(member_id=member_id)
+        except About.DoesNotExist:
+            pass
+
+        try:
+            image = Image.objects.get(member_id=member_id)
+        except Image.DoesNotExist:
+            pass
 
         image_url = image.image.url if image else None
 
         decoded_image_url = urllib.parse.unquote(image_url).lstrip('/') if image_url else None
         decoded_image_url = decoded_image_url.replace("http:/", "http://")
-            
+
         member_details = {
-            'member_id'     : member_id,
-            'id'            : member.matrimony_id,
-            'name'          : member.name,
-           'date_of_birth'  : basic_details.date_of_birth,
-           'email_id'       : basic_details.email_id,
-           'image_url'      : decoded_image_url,
-           'age_range_min'  : preferences.age_range_min,
-           'age_range_max'  : preferences.age_range_max,
-           'location'       : preferences.location,
-           'occupation'     : preferences.occupation,
-           'education'      : preferences.education,
-           'job'            : professional_Details.occupation,
-           'marital_status' : personal_Details.marital_status,
-           'about'          : about.about_you,
-
-
-            
-           
+            'member_id': member_id,
+            'id': member.matrimony_id,
+            'name': member.name,
+            'date_of_birth': basic_details.date_of_birth if basic_details else None,
+            'email_id': basic_details.email_id if basic_details else None,
+            'image_url': decoded_image_url,
+            'age_range_min': preferences.age_range_min if preferences else None,
+            'age_range_max': preferences.age_range_max if preferences else None,
+            'location': preferences.location if preferences else None,
+            'occupation': preferences.occupation if preferences else None,
+            'education': preferences.education if preferences else None,
+            'job': professional_details.occupation if professional_details else None,
+            'marital_status': personal_details.marital_status if personal_details else None,
+            'about': about.about_you if about else None,
         }
 
-        
-        
         return JsonResponse(member_details)
+
     
 
 class ShowInterestView(APIView):

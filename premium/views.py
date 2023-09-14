@@ -110,9 +110,7 @@ class PremiumMember(APIView):
 
             premium_users = Premium.objects.filter(
                 Q(is_diamond=True) | Q(is_gold=True) | Q(is_platinum=True),
-                # is_verified=True,
-                # is_active=True,
-                # is_superuser=False
+             
             ).order_by('-id')
 
             member_details = []
@@ -124,10 +122,7 @@ class PremiumMember(APIView):
                     'name' : member.name,
                     'id'   : premium_user.member_id,
                     'email': basic_details.email_id,
-                    # 'date_of_birth': user.date_of_birth,
-                    # 'is_diamond': user.is_diamond,
-                    # 'is_gold': user.is_gold,
-                    # 'is_platinum': user.is_platinum
+                   
                 })
             
             return JsonResponse(member_details, status=200, safe=False)
@@ -173,45 +168,12 @@ class ChattingProfiles(APIView):
             return JsonResponse({'error': str(e)}, status=500)
 
 
-        
-
-# class GetMessage(APIView):
-
-#     def get(self, request, recepient_id):
-#         try:
-
-#             sender_id = request.query_params.get('sender_id')
-
-#             messages = Message.objects.filter(
-#                 (Q(sender_id=sender_id) & Q(receiver_id=recepient_id)) |
-#                 (Q(sender_id=recepient_id) & Q(receiver_id=sender_id))
-#             ).order_by('timestamp')
-
-#             if not messages.exists():
-#                 return JsonResponse({"error": "No messages found"}, status=404)
-
-#             message_data = []
-#             for message in messages:
-#                 message_info = {
-#                     "sender_id": message.sender_id,
-#                     "receiver_id": message.receiver_id,
-#                     "content": message.content,
-#                     "timestamp": message.timestamp.strftime('%Y-%m-%d %H:%M:%S'),
-#                 }
-#                 message_data.append(message_info)
-
-#             return JsonResponse({"recipient_data": message_data}, status=200)
-
-#         except Message.DoesNotExist:
-#             return JsonResponse({"error": "Messages not found"}, status=404)
-
 
 class GetMessage(APIView):
 
     def get(self, request, recepient_id):
         try:
             sender_id = request.query_params.get('sender_id')
-
             messages = Message.objects.filter(
                 (Q(sender_id=sender_id) & Q(receiver_id=recepient_id)) |
                 (Q(sender_id=recepient_id) & Q(receiver_id=sender_id))
@@ -239,3 +201,34 @@ class GetMessage(APIView):
 
         except (Message.DoesNotExist, Image.DoesNotExist):
             return JsonResponse({"error": "Messages or sender's image not found"}, status=404)
+
+
+class PreferenceGetView(APIView):
+    
+    def get(self, request, memberId):
+        try:
+            memberpreferences = Preferences.objects.filter(member_id=memberId)
+            serializer = PreferenceSerializer(memberpreferences, many=True)
+            return Response(serializer.data)
+        except Preferences.DoesNotExist:
+            return Response({"detail": "Preferences do not exist for this member."}, status=status.HTTP_404_NOT_FOUND)
+        
+
+    def put(self, request, memberId):
+
+        try:
+            memberpreferences = Preferences.objects.filter(member_id=memberId)
+            
+            if not memberpreferences.exists():
+                return Response({"detail": "Preferences do not exist for this member."}, status=status.HTTP_404_NOT_FOUND)
+
+         
+            serializer = PreferenceSerializer(memberpreferences[0], data=request.data)
+            
+            if serializer.is_valid():
+                serializer.save()
+                return Response(serializer.data)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        
+        except Exception as e:
+            return Response({"detail": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
