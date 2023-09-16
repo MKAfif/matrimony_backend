@@ -6,11 +6,12 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404
-# from pusher import pusher_client
 from channels.generic.websocket import AsyncWebsocketConsumer
 import json
 from django.db.models import Q
 import urllib.parse
+from django.db.models import Sum
+from decimal import Decimal
 
 
 
@@ -54,22 +55,33 @@ class Billing(APIView):
 class UpdatePremiumProfile(APIView):
 
     def post(self, request, **kwargs):
-
         data = request.data
-         
         plan_name = data.get('plan_name')
         member_id = data.get('member')
-        print(member_id ,"memberid")
+        current_amount = data.get('amount')
+
+        print(current_amount)
+
+        current_amount = Decimal(current_amount)
 
         existing_subscription = Premium.objects.filter(
-            member=member_id,
-            is_platinum=(plan_name == 'Platinum'),
-            is_gold=(plan_name == 'Gold'),
-            is_diamond=(plan_name == 'Diamond')
+            member=member_id
         ).first()
 
         if existing_subscription:
-            return Response({'message': 'You have already upgraded to this package. Choose another package.'}, status=status.HTTP_400_BAD_REQUEST)
+       
+            if plan_name == 'Platinum':
+                existing_subscription.is_platinum = True
+            elif plan_name == 'Gold':
+                existing_subscription.is_gold = True
+            elif plan_name == 'Diamond':
+                existing_subscription.is_diamond = True
+
+            existing_subscription.amount += current_amount
+            existing_subscription.save()
+
+            return Response({'message': 'Membership successfully updated.'}, status=status.HTTP_200_OK)
+
       
         if plan_name == 'Platinum':
             data['is_platinum'] = True
@@ -78,12 +90,14 @@ class UpdatePremiumProfile(APIView):
         elif plan_name == 'Diamond':
             data['is_diamond'] = True
 
-        serializer = PremiumSerializer(data= data)
+
+        data['amount'] = current_amount
+
+        serializer = PremiumSerializer(data=data)
         if serializer.is_valid():
             serializer.save()
-            return Response(serializer.data , status=status.HTTP_201_CREATED)
-        
-        print(serializer.errors)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class CheckMembership(APIView):
@@ -232,3 +246,60 @@ class PreferenceGetView(APIView):
         
         except Exception as e:
             return Response({"detail": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        
+        
+class Dashboard(APIView):
+
+    def get(self, request):
+        try:
+            premium_members = []
+
+            for premium in Premium.objects.all():
+                member = Member.objects.get(id=premium.member_id)
+                premium_members.append({
+                    'name': member.name,
+                    'amount': premium.amount,
+                    'ending_date': premium.ending_date,
+                    'is_platinum': premium.is_platinum,
+                    'is_gold': premium.is_gold,
+                    'is_diamond': premium.is_diamond,
+                    'starting_date': premium.starting_date
+                })
+
+            return JsonResponse(premium_members, status=200, safe=False)
+
+        except Exception as e:
+            return JsonResponse({'error': str(e)}, status=500)
+
+class Revenue(APIView):
+
+    def get(self, request):
+        try:
+           
+            total_amount = Premium.objects.aggregate(total_amount=Sum('amount'))['total_amount'] or 0
+
+            response_data = {
+                'total': total_amount
+            }
+
+            return JsonResponse(response_data, status=200)
+        except Exception as e:
+            return JsonResponse({'error': str(e)}, status=500)
+        
+
+class Totalmember(APIView):
+
+    def get(self , request):
+
+        try:
+
+            total_members = Member.objects.count()
+
+            response_data = {
+                'total' : total_members
+            }
+
+            return JsonResponse(response_data, status=200, safe=False)
+        except Exception as e:
+            return JsonResponse({'error': str(e)}, status=500)
+        

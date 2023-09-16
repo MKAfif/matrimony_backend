@@ -13,7 +13,10 @@ urlpatterns = [
     path('api/chattingprofiles/', views.ChattingProfiles.as_view(), name='allmemberdetails'),
     path('api/getmessage/<int:recepient_id>/',views.GetMessage.as_view(),name = 'getmessage'),
     path('api/checkmembership',views.CheckMembership.as_view(),name='checkmembership'),
-    path('api/getpreference/<int:memberId>',views.PreferenceGetView.as_view(),name='preferencegetview')
+    path('api/getpreference/<int:memberId>',views.PreferenceGetView.as_view(),name='preferencegetview'),
+    path('api/dashboard',views.Dashboard.as_view(),name='dashboard'),
+    path('api/totalamount',views.Revenue.as_view(),name='total'),
+    path('api/totalmember',views.Totalmember.as_view(),name='totalmember'),
 
 ]
 

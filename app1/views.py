@@ -180,9 +180,12 @@ class AdminLoginView(APIView):
 
         if user is not None and check_password(password, user.password) and user.is_superuser:
             login(request, user)
-            token = get_token(user)
 
-            return JsonResponse({'message': 'Login successful','token' : token })
+            admin_token = get_token(user, user_type='admin')
+
+           
+
+            return JsonResponse({'message': 'Login successful','token' : admin_token })
         else:
             return JsonResponse({'error': 'Invalid credentials'}, status=401)
 
@@ -262,7 +265,8 @@ class MemberLogin(APIView):
 
         if user is not None and check_password(password, user.password) and user.is_active:
             login(request, user)
-            token = get_token(user)
+            member_token = get_token(user, user_type='member')
+
 
             member_instance = user.member
             basic_details = member_instance.basic_details_profile.first()
@@ -331,7 +335,7 @@ class MemberLogin(APIView):
 
 
             serializer = LoginUserSerializer(user)
-            return JsonResponse({'message': 'Login successful','token' : token , 'userinfo':serializer.data, 'memberinfo':member_data })
+            return JsonResponse({'message': 'Login successful','token' : member_token , 'userinfo':serializer.data, 'memberinfo':member_data })
         else:
             return JsonResponse({'error': 'Invalid credentials'}, status=401)
 
@@ -513,6 +517,7 @@ class IndividalMemberDetails(APIView):
             'job': professional_details.occupation if professional_details else None,
             'marital_status': personal_details.marital_status if personal_details else None,
             'about': about.about_you if about else None,
+            'number': member.mobile_number
         }
 
         return JsonResponse(member_details)
