@@ -25,7 +25,7 @@ SECRET_KEY = 'django-insecure-$5rm&6wg20$fv#%tl1yc!s^y=x&d$6d3^f6p1&st^br6bsh-x#
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     'app1',
     'premium',
     'rest_framework_simplejwt',
+    'rest_framework',
     
     
 ]
@@ -69,13 +70,13 @@ ASGI_APPLICATION = "backend.asgi.application"
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'corsheaders.middleware.CorsMiddleware',  # CorsMiddleware is before CsrfViewMiddleware
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'corsheaders.middleware.CorsMiddleware',  # CorsMiddleware is before CsrfViewMiddleware
     'django.middleware.common.CommonMiddleware',
     
 ]
