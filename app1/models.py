@@ -17,24 +17,21 @@ class Member(models.Model):
     mobile_number             =   models.CharField(max_length=10)
 
 
-class Basic_Details(AbstractBaseUser,PermissionsMixin):
-    member               =   models.ForeignKey(Member, on_delete=models.CASCADE, null=True, blank=True, related_name='basic_details_profile')
-    date_of_birth        =   models.DateField()
-    religion             =   models.CharField(max_length=30)
-    mother_tongue        =   models.CharField(max_length=30)
-    email_id             =   models.EmailField(unique=True)
-    is_staff             =   models.BooleanField(default=False)
-    is_superuser         =   models.BooleanField(default=False)
-    is_active            =   models.BooleanField(default=False)
-    is_verified          =   models.BooleanField(default=False)
-    is_platinum          =   models.BooleanField(default=False)
-    is_gold              =   models.BooleanField(default=False)
-    is_diamond           =   models.BooleanField(default=False)
+class Basic_Details(AbstractBaseUser, PermissionsMixin):
+    member = models.ForeignKey(Member, on_delete=models.CASCADE, null=True, blank=True, related_name='basic_details_profile')
+    date_of_birth = models.DateField(null=True, blank=True)
+    religion = models.CharField(max_length=30, null=True, blank=True)
+    mother_tongue = models.CharField(max_length=30, null=True, blank=True)
+    email = models.EmailField(unique=True, null=True, blank=True)
+    is_staff = models.BooleanField(default=False)
+    is_superuser = models.BooleanField(default=False)
+    is_active = models.BooleanField(default=False)
+    is_verified = models.BooleanField(default=False)
 
    
     objects = UserManager()
    
-    USERNAME_FIELD = 'email_id'
+    USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = []
    
     def has_perm(self, perm, obj=None):

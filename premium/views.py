@@ -135,7 +135,7 @@ class PremiumMember(APIView):
                 member_details.append({
                     'name' : member.name,
                     'id'   : premium_user.member_id,
-                    'email': basic_details.email_id,
+                    'email': basic_details.email,
                    
                 })
             
@@ -172,7 +172,7 @@ class ChattingProfiles(APIView):
 
                         member_details.append({
                             'id': basic_detail.member_id,
-                            'email': basic_detail.email_id,
+                            'email': basic_detail.email,
                             'name': basic_detail.member.name,
                             'image_urls': modified_image_urls,
                         })
@@ -303,3 +303,26 @@ class Totalmember(APIView):
         except Exception as e:
             return JsonResponse({'error': str(e)}, status=500)
         
+
+
+
+class AdminReject(APIView):
+
+    def delete(self, request, member_id):
+
+        try:
+            personal_Details     = Personal_Details.objects.get(member_id = member_id)
+            professional_Details = Professional_Details.objects.get(member_id = member_id)
+            about                = About.objects.get(member_id = member_id)
+            member               = Member.objects.get(id=member_id)
+
+
+            about.delete()
+            professional_Details.delete()
+            personal_Details.delete()
+            member.delete()
+
+
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        except About.DoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)

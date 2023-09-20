@@ -17,6 +17,7 @@ urlpatterns = [
     path('api/dashboard',views.Dashboard.as_view(),name='dashboard'),
     path('api/totalamount',views.Revenue.as_view(),name='total'),
     path('api/totalmember',views.Totalmember.as_view(),name='totalmember'),
+    path('api/reject-member/<int:member_id>', views.AdminReject.as_view(),name='reject'),
 
 ]
 

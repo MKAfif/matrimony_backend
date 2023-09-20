@@ -82,9 +82,13 @@ MIDDLEWARE = [
 ]
 
 CORS_ALLOWED_ORIGINS = [
-    'http://localhost:3000',  
-    'http://10.0.0.153:3000',
+    '*',
 ]
+
+
+CORS_ALLOW_ALL_ORIGINS = True
+
+
 
 ROOT_URLCONF = 'backend.urls'
 
@@ -111,7 +115,7 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': 'matrimony',
-        'USER':'postgres',
+        'USER':'afif',
         'PASSWORD':'123',
         'HOST':'localhost',
         'port':'5432'
@@ -212,7 +216,7 @@ STATIC_URL = '/static/'
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
-# AUTH_USER_MODEL = 'app1.Member'
+AUTH_USER_MODEL = 'app1.Basic_Details'
 
 
 # from decouple import config
@@ -226,12 +230,7 @@ CACHES = {
     }
 }
 
-# CLOUDINARY_URL = 'cloudinary://your_api_key:your_api_secret@your_cloud_name'
-# from decouple import config
 
-# CLOUDINARY_URL = config("CLOUDINARY_URL")
-
-# CLOUDINARY_URL='cloudinary://352213952554568:Pp5uhQ6oQyYRL6ios7-yAoCB66k@dbddaahut'
 
 import cloudinary
 
@@ -243,4 +242,13 @@ CLOUDINARY_CONFIG = {
 }
 
 cloudinary.config(**CLOUDINARY_CONFIG)
+
+REST_FRAMEWORK = {
+    'DEFAULT_RENDERER_CLASSES': (
+        'rest_framework.renderers.JSONRenderer',
+    ),
+    'DEFAULT_PARSER_CLASSES': (
+        'rest_framework.parsers.JSONParser', 
+    )
+}
 

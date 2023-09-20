@@ -56,7 +56,7 @@ class BasicDetailsCreateView(APIView):
         data     = request.data
         email_id = data.get('email_id')
 
-        if Basic_Details.objects.filter(email_id = email_id).exists():
+        if Basic_Details.objects.filter(email = email_id).exists():
             raise ValidationError({'email_id':'This email already exists'})
 
         serializer = BasicDetailsSerializer(data=request.data)
@@ -175,7 +175,7 @@ class AdminLoginView(APIView):
         password = request.data.get('password')
         
         try:
-            user = Basic_Details.objects.get(email_id=email)
+            user = Basic_Details.objects.get(email=email)
         except Basic_Details.DoesNotExist:
             user = None
 
@@ -205,12 +205,13 @@ class ProfileVerificationView(APIView):
                 member = Member.objects.get(id =basic_detail.member_id)
                 member_details.append({
                     'name': member.name,
-                    'id': basic_detail.id,
-                    'email': basic_detail.email_id,
-                    'date_of_birth': basic_detail.date_of_birth,            
+                    'id': basic_detail.member_id,
+                    'email': basic_detail.email,
+                    'date_of_birth': basic_detail.date_of_birth, 
+                               
                 })
 
-                print(member_details)
+              
 
               
             return JsonResponse(member_details, status=200, safe=False)
@@ -223,7 +224,7 @@ class AdminMemberVerification(APIView):
 
     def post(self,request,member_id):
         try:
-            member = Basic_Details.objects.get(id = member_id)
+            member = Basic_Details.objects.get(member_id = member_id)
             member.is_active = True
             member.save()
             return JsonResponse({'message':'Member Verified Successfully'})
@@ -244,7 +245,7 @@ class AdminMember(APIView):
                 member_details.append({
                     'name':member.name,
                     'id': basic_detail.id,
-                    'email': basic_detail.email_id,
+                    'email': basic_detail.email,
                     'date_of_birth': basic_detail.date_of_birth,            
                 })
 
@@ -260,7 +261,7 @@ class MemberLogin(APIView):
         password = request.data.get('password')
         
         try:
-            user = Basic_Details.objects.get(email_id=email)
+            user = Basic_Details.objects.get(email=email)
         except Basic_Details.DoesNotExist:
             user = None
 
@@ -404,7 +405,7 @@ class AllMembersView(APIView):
                         
                             member_details.append({
                                 'id': basic_detail.member_id,
-                                'email': basic_detail.email_id,
+                                'email': basic_detail.email,
                                 'date_of_birth': basic_detail.date_of_birth,
                                 'image_urls': modified_image_urls,
                                 'name': basic_detail.member.name, 
@@ -508,7 +509,7 @@ class IndividalMemberDetails(APIView):
             'id': member.matrimony_id,
             'name': member.name,
             'date_of_birth': basic_details.date_of_birth if basic_details else None,
-            'email_id': basic_details.email_id if basic_details else None,
+            'email_id': basic_details.email if basic_details else None,
             'image_url': decoded_image_url,
             'age_range_min': preferences.age_range_min if preferences else None,
             'age_range_max': preferences.age_range_max if preferences else None,
