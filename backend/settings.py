@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 """
 
 from pathlib import Path
+import dj_database_url
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -82,11 +83,12 @@ MIDDLEWARE = [
 ]
 
 CORS_ALLOWED_ORIGINS = [
-    '*',
+    'http://localhost:3000',  
+    'http://10.0.0.153:3000',
 ]
 
 
-CORS_ALLOW_ALL_ORIGINS = True
+
 
 
 
@@ -112,15 +114,18 @@ WSGI_APPLICATION = 'backend.wsgi.application'
 
 
 DATABASES = {
+
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': 'matrimony',
-        'USER':'afif',
+        'USER':'postgres',
         'PASSWORD':'123',
         'HOST':'localhost',
         'port':'5432'
     }
 }
+
+DATABASES['default'] = dj_database_url.parse("postgres://matrimony_user:7BIeHFVrH2NJYoNdYyNraIk9E50JyH79@dpg-ckhqgsi12bvs738e41hg-a.oregon-postgres.render.com/matrimony")
 
 
 # Password validation
@@ -242,13 +247,4 @@ CLOUDINARY_CONFIG = {
 }
 
 cloudinary.config(**CLOUDINARY_CONFIG)
-
-REST_FRAMEWORK = {
-    'DEFAULT_RENDERER_CLASSES': (
-        'rest_framework.renderers.JSONRenderer',
-    ),
-    'DEFAULT_PARSER_CLASSES': (
-        'rest_framework.parsers.JSONParser', 
-    )
-}
 

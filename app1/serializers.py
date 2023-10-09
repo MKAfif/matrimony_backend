@@ -11,7 +11,7 @@ class MemberSerializer(serializers.ModelSerializer):
 class BasicDetailsSerializer(serializers.ModelSerializer):
     class Meta:
         model = Basic_Details
-        fields = ['date_of_birth', 'religion', 'mother_tongue', 'email_id','password','member']
+        fields = ['date_of_birth', 'religion', 'mother_tongue', 'email','password','member']
         extra_kwargs = {'password': {'write_only': True}}
 
     def create(self, validated_data):
@@ -53,13 +53,13 @@ class LoginUserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model  = Basic_Details
-        fields = ['email_id','is_superuser','is_active']
+        fields = ['email','is_superuser','is_active']
 
 class ImageSerializer(serializers.ModelSerializer):
 
     image = serializers.CharField()
 
-    class Meta:
+    class Meta: 
         model   = Image
         fields  = ['image','member']
 

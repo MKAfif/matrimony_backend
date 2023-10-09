@@ -22,7 +22,7 @@ urlpatterns = [
     path('api/memberlogin',views.MemberLogin.as_view(),name='memberlogin'),
     path('api/imageupload',views.ImageUpload.as_view(),name='imageupload'),
     path('api/allmemberdetails/', views.AllMembersView.as_view(), name='allmemberdetails'),
-    path('api/preferences',views.PreferenceCreateView.as_view(),name='references'),
+    path('api/preferences/',views.PreferenceCreateView.as_view(),name='references'),
     path('api/adminpremium',views.MembershipPackageView.as_view(),name='premium'),
     path('api/individual/<int:member_id>/',views.IndividalMemberDetails.as_view(),name='individual'),
     path('api/showinterest', views.ShowInterestView.as_view(), name='showinterest'),
@@ -34,3 +34,4 @@ urlpatterns = [
 
 
 ]
+

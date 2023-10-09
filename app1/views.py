@@ -354,7 +354,7 @@ class ImageUpload(APIView):
         if not member_id or not image_data:
             return Response({'error': 'member and image are required'}, status=status.HTTP_400_BAD_REQUEST)
 
-        member = Member.objects.get(pk=member_id)
+        member = Member.objects.get(pk=member_id) 
         
         
         uploaded_image = cloudinary.uploader.upload(image_data)
@@ -429,6 +429,7 @@ class PreferenceCreateView(APIView):
 
             return Response(serializer.data,status=status.HTTP_201_CREATED)
         
+        print(serializer.errors)
         return Response(serializer.errors , status= status.HTTP_400_BAD_REQUEST)
     
 
@@ -458,6 +459,7 @@ class MembershipPackageView(APIView):
 class IndividalMemberDetails(APIView):
 
     def get(self, request, member_id):
+
         member = get_object_or_404(Member, id=member_id)
 
        
@@ -501,8 +503,11 @@ class IndividalMemberDetails(APIView):
 
         image_url = image.image.url if image else None
 
-        decoded_image_url = urllib.parse.unquote(image_url).lstrip('/') if image_url else None
-        decoded_image_url = decoded_image_url.replace("http:/", "http://")
+        if image_url:
+            decoded_image_url = urllib.parse.unquote(image_url).lstrip('/') if image_url else None
+            decoded_image_url = decoded_image_url.replace("http:/", "http://")
+        else:
+            decoded_image_url = None
 
         member_details = {
             'member_id': member_id,
@@ -535,7 +540,7 @@ class ShowInterestView(APIView):
         
         if memberid is not None:
             member = get_object_or_404(Basic_Details, member_id=memberid)
-            recepient_email = member.email_id
+            recepient_email = member.email
             self.send_interest(recepient_email, name)
             return Response({'message': 'Interest shown successfully'}, status=status.HTTP_200_OK)
         else:
