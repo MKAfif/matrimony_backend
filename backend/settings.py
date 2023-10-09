@@ -89,9 +89,10 @@ MIDDLEWARE = [
 # ]
 
 CORS_ALLOWED_ORIGINS = [
-    'https://matrimony-frontend-frnpftj4s-mkafif.vercel.app/'
+    '*',
 ]
 
+CORS_ALLOW_ALL_ORIGINS = True
 
 
 
