@@ -1,8 +1,7 @@
-from django.db import models
 from django.contrib.auth.models import AbstractBaseUser,PermissionsMixin,Permission,Group,AbstractUser
 from django.utils.translation import gettext_lazy as _
 from .manager import UserManager
-
+from django.db import models
 
 class Member(models.Model):
     gender_choice = (

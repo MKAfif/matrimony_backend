@@ -41,14 +41,15 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'corsheaders',
-    'app1',
-    'premium',
     'rest_framework_simplejwt',
     'rest_framework',
+    'app1',
+    'premium',
     
     
 ]
 
+ASGI_APPLICATION = "backend.asgi.application"
 
 # CHANNEL_LAYERS = {
 #     "default": {
@@ -65,7 +66,7 @@ CHANNEL_LAYERS = {
     }
 }
 
-ASGI_APPLICATION = "backend.asgi.application"
+
 
 
 
@@ -83,8 +84,7 @@ MIDDLEWARE = [
 ]
 
 CORS_ALLOWED_ORIGINS = [
-    'http://localhost:3000',  
-    'http://10.0.0.153:3000',
+    '*'
 ]
 
 
@@ -109,6 +109,7 @@ TEMPLATES = [
         },
     },
 ]
+
 
 WSGI_APPLICATION = 'backend.wsgi.application'
 

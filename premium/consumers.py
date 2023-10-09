@@ -1,12 +1,9 @@
 import json
 from channels.generic.websocket import AsyncWebsocketConsumer
 from asgiref.sync import sync_to_async
-from app1.models import Message,Member
 from django.utils import timezone
 from channels.db import database_sync_to_async
-import random
-import string
-
+from app1.models import Message,Member
 
 
 
