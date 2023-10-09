@@ -83,14 +83,14 @@ MIDDLEWARE = [
     
 ]
 
-# CORS_ALLOWED_ORIGINS = [
-#     'http://localhost:3000',  
-#     'http://10.0.0.153:3000',
-# ]
-
 CORS_ALLOWED_ORIGINS = [
-    '*',
+    'http://localhost:3000',  
+    'http://10.0.0.153:3000',
 ]
+
+# CORS_ALLOWED_ORIGINS = [
+#     '*',
+# ]
 
 CORS_ALLOW_ALL_ORIGINS = True
 
